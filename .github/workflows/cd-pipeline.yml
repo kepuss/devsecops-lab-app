@@ -20,4 +20,5 @@ jobs:
         containerAppEnvironment: devops-app-env
         resourceGroup: devsecops-lab
         location: australiaeast
+        targetPort: 5000
     
