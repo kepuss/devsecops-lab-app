@@ -1,6 +1,6 @@
-name: Python test and build
+name: Deploy
 
-on: [push]
+on: workflow_dispatch
 
 
 jobs:
