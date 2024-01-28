@@ -19,4 +19,5 @@ jobs:
         containerAppName: devops-app
         containerAppEnvironment: devops-app-env
         resourceGroup: devsecops-lab
+        location: Australia East
     
