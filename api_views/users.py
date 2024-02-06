@@ -114,7 +114,7 @@ def update_email(username):
         jsonschema.validate(request_data, update_email_schema)
     except:
         return Response(error_message_helper("Please provide a proper JSON body."), 400, mimetype="application/json")
-    resp = token_validator(request.headers.get('Authorization'))
+    resp = token_validator(request.headers.get('x-user-token'))
     if "expired" in resp:
         return Response(error_message_helper(resp), 401, mimetype="application/json")
     elif "Invalid token" in resp:

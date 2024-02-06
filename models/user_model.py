@@ -1,7 +1,7 @@
 import datetime
 import jwt
 from sqlalchemy.orm import relationship
-from config import db, vuln_app
+from config import db, vuln_app, vuln_conn
 from app import vuln, alive
 from models.books_model import Book
 from random import randrange
@@ -44,12 +44,17 @@ class User(db.Model):
     @staticmethod
     def decode_auth_token(auth_token):
         try:
-            payload = jwt.decode(auth_token, vuln_app.app.config.get('SECRET_KEY'), algorithms=["HS256"])
+            if vuln:
+                payload = jwt.decode(auth_token, vuln_app.app.config.get('SECRET_KEY'), algorithms=["HS256","none"], options={"verify_signature": False} )
+            else:
+                payload = jwt.decode(auth_token, vuln_app.app.config.get('SECRET_KEY'), algorithms=["HS256"])
             return payload['sub']
         except jwt.ExpiredSignatureError:
             return 'Signature expired. Please log in again.'
-        except jwt.InvalidTokenError:
+        except jwt.InvalidTokenError as e:
             return 'Invalid token. Please log in again.'
+        except Exception as e:
+            return e
 
     def json(self):
         return{'username': self.username, 'email': self.email}
@@ -67,9 +72,10 @@ class User(db.Model):
 
     @staticmethod
     def get_user(username):
-        if vuln:  # SQLi Injection
+        if vuln: 
             user_query = f"SELECT * FROM users WHERE username = '{username}'"
-            query = db.session.execute(text(user_query))
+            print(user_query)
+            query = vuln_conn.cursor().executescript(user_query)
             ret = query.fetchone()
             if ret:
                 fin_query = '{"username": "%s", "email": "%s"}' % (ret[1], ret[3])
