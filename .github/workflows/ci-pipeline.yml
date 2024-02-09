@@ -76,7 +76,7 @@ jobs:
         with:
           imageToDeploy: ${{ secrets.DOCKERHUB_USERNAME }}/devops-labs:dast-test
           containerAppName: devops-test-app
-          containerAppEnvironment: devops-test-app-env
+          containerAppEnvironment: devops-app-env
           resourceGroup: devsecops-lab
           location: australiaeast
           targetPort: 5000
