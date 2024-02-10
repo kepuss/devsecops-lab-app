@@ -93,7 +93,7 @@ jobs:
           target: ${{ env.TEST_APP_URL }}
           policy: Default Policy
           report: true
-          cmd_options: '-openapifile ./openapi_specs/openapi3.yml -openapitargeturl ${{ env.TEST_APP_URL }}'
+          cmd_options: '-z "-openapifile ./openapi_specs/openapi3.yml -openapitargeturl ${{ env.TEST_APP_URL }}"'
 
   build:
     needs: [test, sonarqube]
