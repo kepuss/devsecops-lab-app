@@ -95,8 +95,8 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           docker_name: 'ghcr.io/zaproxy/zaproxy:stable'
           format: openapi
-          target: ${{ github.workspace }}/openapi_specs/openapi3.yml
-          rules_file_name: ${{ github.workspace }}/.zap/rules.tsv
+          target: /zap/wrk/openapi_specs/openapi3.yml
+          rules_file_name: /zap/wrk/.zap/rules.tsv
           cmd_options: '-a'
           fail_action: false
           allow_issue_writing: false
