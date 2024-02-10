@@ -86,14 +86,19 @@ jobs:
           echo "TEST_APP_URL=https://$FQDN" >> $GITHUB_ENV
           echo "TEST_APP_URL=https://$FQDN" 
           curl https://$FQDN/ui
+          sed -i "s,http://localhost:5000,https://$FQDN,g" ./openapi_specs/openapi3.yml
 
-      - name: Run ZAP Full Scan
-        uses: zaproxy/action-full-scan@v0.3.0
+      - name: ZAP Scan
+        uses: zaproxy/action-api-scan@v0.6.0
         with:
-          target: ${{ env.TEST_APP_URL }}
-          policy: Default Policy
-          report: true
-          cmd_options: '-z "-openapifile ./openapi_specs/openapi3.yml -openapitargeturl ${{ env.TEST_APP_URL }}"'
+          token: ${{ secrets.GITHUB_TOKEN }}
+          docker_name: 'ghcr.io/zaproxy/zaproxy:stable'
+          format: openapi
+          target: './openapi_specs/openapi3.yml'
+          rules_file_name: '.zap/rules.tsv'
+          cmd_options: '-a'
+          fail_action: false
+          allow_issue_writing: false
 
   build:
     needs: [test, sonarqube]
