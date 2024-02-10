@@ -97,7 +97,7 @@ jobs:
           format: openapi
           target: /zap/wrk/openapi_specs/openapi3.yml
           rules_file_name: .zap/rules.tsv
-          cmd_options: '-a'
+          cmd_options: '-a -c /zap/wrk/.zap/rules.tsv'
           fail_action: false
           allow_issue_writing: false
 
