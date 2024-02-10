@@ -83,16 +83,17 @@ jobs:
       - name: Get deployed dast app url
         run: |
           export FQDN=$(az containerapp show -n devops-test-app -g devsecops-lab --query properties.configuration.ingress.fqdn -o tsv)
-          echo "TEST_APP_URL=$FQDN" >> $GITHUB_ENV
-          echo "TEST_APP_URL=$FQDN" 
-          curl $FQDN/ui
-          
+          echo "TEST_APP_URL=https://$FQDN" >> $GITHUB_ENV
+          echo "TEST_APP_URL=https://$FQDN" 
+          curl https://$FQDN/ui
+
       - name: Run ZAP Full Scan
         uses: zaproxy/action-full-scan@v0.3.0
         with:
           target: ${{ env.TEST_APP_URL }}
           policy: Default Policy
           report: true
+          cmd_options: '-openapifile ./openapi_specs/openapi3.yml -openapitargeturl ${{ env.TEST_APP_URL }}'
 
   build:
     needs: [test, sonarqube]
