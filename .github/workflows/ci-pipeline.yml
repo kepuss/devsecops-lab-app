@@ -53,6 +53,7 @@ jobs:
           if (( TOTAL_RESULTS > 0 )); then
             break
           fi
+          sleep 5
         done
         if (( TOTAL_RESULTS < 1 )); then
            exit 1
