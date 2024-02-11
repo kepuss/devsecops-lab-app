@@ -152,7 +152,6 @@ jobs:
     - uses: actions/download-artifact@v4
       with:
         path: ${{github.workspace}}
-        merge-multiple: false
     - name: Display structure of downloaded files
       env:
        SUBMIT_USER: ${{ secrets.UPLOAD_USER }}
