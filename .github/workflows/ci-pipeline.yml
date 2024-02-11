@@ -26,8 +26,6 @@ jobs:
         with:
           name: test-results
           path: junit/test-results.xml
-      - name: Output artifact URL
-        run:  echo 'Artifact URL is ${{ steps.artifact-upload-step.outputs.artifact-url }}'
 
   sonarqube:
     needs: test
@@ -50,7 +48,8 @@ jobs:
         echo "Report URL $URL"
         curl --header 'Authorization: Bearer ${{ secrets.SONAR_TOKEN }}' "$URL" -o sonarqube-report.json
     - name: Upload SonarQube report
-      uses: actions/upload-artifact@v2
+      id: artifact-sonarqube
+      uses: actions/upload-artifact@v4
       with:
         name: sonarqube-report
         path: sonarqube-report.json
@@ -112,17 +111,9 @@ jobs:
           fail_action: false
           allow_issue_writing: false
 
-      - uses: actions/download-artifact@v4
-        with:
-          path: ${{ github.workspace }}
-      - name: Verify artifacts
-        run: |
-          export FQDN=$(az containerapp show -n devops-test-app -g devsecops-lab --query properties.configuration.ingress.fqdn -o tsv)
-          echo "TEST_APP_URL=https://$FQDN" >> $GITHUB_ENV
-
   build:
     needs: [test, sonarqube]
-    if: true
+    if: false
     runs-on: ubuntu-latest
     steps:
       -
@@ -151,6 +142,7 @@ jobs:
    steps:
     - uses: actions/download-artifact@v4
       with:
+        name: sonarqube-report
         path: ${{github.workspace}}
     - name: Display structure of downloaded files
       env:
