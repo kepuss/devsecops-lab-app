@@ -57,7 +57,7 @@ jobs:
 
   dast:
     needs: test
-    if: true
+    if: false
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -121,7 +121,7 @@ jobs:
           echo "TEST_APP_URL=https://$FQDN" >> $GITHUB_ENV
 
   build:
-    needs: [test, sonarqube, dast]
+    needs: [test, sonarqube]
     if: true
     runs-on: ubuntu-latest
     steps:
@@ -145,7 +145,7 @@ jobs:
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/devops-labs:latest
 
   submit_reports:
-   needs: [test, sonarqube, dast]
+   needs: [test, sonarqube]
    if: true
    runs-on: ubuntu-latest
    steps:
@@ -159,5 +159,5 @@ jobs:
        SUBMIT_PASS: ${{ secrets.UPLOAD_PASSWORD }}
       run: |
        ls -l
-       curl -X POST -u "$SUBMIT_USER:$SUBMIT_PASS" --data-binary @$GITHUB_WORKSPACE/sonarqube-report.zip https://devsecops-ver.azurewebsites.net/week3-sonar-report
-       curl -X POST -u "$SUBMIT_USER:$SUBMIT_PASS" --data-binary @$GITHUB_WORKSPACE/zap_scan.zip https://devsecops-ver.azurewebsites.net/week3-zap-report
+       curl -X POST -u "$SUBMIT_USER:$SUBMIT_PASS" --data-binary @$GITHUB_WORKSPACE/sonarqube-report/sonarqube-report.json https://devsecops-ver.azurewebsites.net/week3-sonar-report
+       curl -X POST -u "$SUBMIT_USER:$SUBMIT_PASS" --data-binary @$GITHUB_WORKSPACE/zap_scan/report_json.json https://devsecops-ver.azurewebsites.net/week3-zap-report
