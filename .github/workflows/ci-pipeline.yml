@@ -32,7 +32,6 @@ jobs:
   sonarqube:
     needs: test
     runs-on: ubuntu-latest
-    if: false
     steps:
     - uses: actions/checkout@v3
       with:
@@ -43,9 +42,31 @@ jobs:
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         SONAR_HOST_URL: ${{ secrets.SONAR_URL }}
+    - name: Download SonarQube report
+      run: |
+        DATE_NOW=$(date --iso-8601=seconds | sed  's/+/%20/g')
+        URL="${{ secrets.SONAR_URL }}/api/issues/search?p=1&components=devsecops-app&branch=main&ps=500&types=VULNERABILITY&createdAfter=$DATE_NOW"
+        echo "Report URL $URL"
+        for (( i=1; i<=4; i++ )); do
+          echo "Iteration $i"
+          TOTAL_RESULTS = $(curl --header 'Authorization: Bearer ${{ secrets.SONAR_TOKEN }}' "$URL"  | jq .paging.total)
+          if (( TOTAL_RESULTS > 0 )); then
+            break
+          fi
+        done
+        if (( TOTAL_RESULTS < 1 )); then
+           exit 1
+        fi
+        curl --header 'Authorization: Bearer ${{ secrets.SONAR_TOKEN }}' "$URL" -o sonarqube-report.json
+    - name: Upload SonarQube report
+      uses: actions/upload-artifact@v2
+      with:
+        name: sonarqube-report
+        path: sonarqube-report.json
 
   dast:
     needs: test
+    if: false
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -100,8 +121,17 @@ jobs:
           fail_action: false
           allow_issue_writing: false
 
+      - uses: actions/download-artifact@v4
+        with:
+          path: ${{ github.workspace }}
+      - name: Verify artifacts
+        run: |
+          export FQDN=$(az containerapp show -n devops-test-app -g devsecops-lab --query properties.configuration.ingress.fqdn -o tsv)
+          echo "TEST_APP_URL=https://$FQDN" >> $GITHUB_ENV
+
   build:
     needs: [test, sonarqube]
+    if: false
     runs-on: ubuntu-latest
     steps:
       -
