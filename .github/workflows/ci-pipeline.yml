@@ -120,7 +120,7 @@ jobs:
 
   build:
     needs: [test, sonarqube]
-    if: false
+    if: true
     runs-on: ubuntu-latest
     steps:
       -
@@ -143,7 +143,7 @@ jobs:
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/devops-labs:latest
 
   submit_reports:
-   needs: [test, sonarqube, dast]
+   needs: [test, sonarqube, dast, build]
    if: true
    runs-on: ubuntu-latest
    steps:
@@ -161,5 +161,7 @@ jobs:
        SUBMIT_PASS: ${{ secrets.UPLOAD_PASSWORD }}
       run: |
        ls -l
-       curl -X POST -u "$SUBMIT_USER:$SUBMIT_PASS" --data-binary @$GITHUB_WORKSPACE/sonarqube-report.json https://devsecops-ver.azurewebsites.net/week3-sonar-report
-       curl -X POST -u "$SUBMIT_USER:$SUBMIT_PASS" --data-binary @$GITHUB_WORKSPACE/report_json.json https://devsecops-ver.azurewebsites.net/week3-zap-report
+       SONAR_RESPONSE=$(curl -X POST -u "$SUBMIT_USER:$SUBMIT_PASS" --data-binary @$GITHUB_WORKSPACE/sonarqube-report.json https://devsecops-ver.azurewebsites.net/week3-sonar-report)
+       echo "Sonar upload: $SONAR_RESPONSE"
+       ZAP_RESPONSE=$(curl -X POST -u "$SUBMIT_USER:$SUBMIT_PASS" --data-binary @$GITHUB_WORKSPACE/report_json.json https://devsecops-ver.azurewebsites.net/week3-zap-report)
+       echo "Zap upload: $ZAP_RESPONSE"
