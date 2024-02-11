@@ -157,8 +157,8 @@ jobs:
         path: ${{github.workspace}}
     - name: Upload reports
       env:
-       SUBMIT_USER: ${{ secrets.UPLOAD_USER }}
-       SUBMIT_PASS: ${{ secrets.UPLOAD_PASSWORD }}
+       SUBMIT_USER: ${{ secrets.SUBMIT_USER }}
+       SUBMIT_PASS: ${{ secrets.SUBMIT_PASS }}
       run: |
        ls -l
        SONAR_RESPONSE=$(curl -X POST -u "$SUBMIT_USER:$SUBMIT_PASS" --data-binary @$GITHUB_WORKSPACE/sonarqube-report.json https://devsecops-ver.azurewebsites.net/api/week3-sonar-report)
