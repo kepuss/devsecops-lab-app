@@ -111,6 +111,13 @@ jobs:
           fail_action: false
           allow_issue_writing: false
 
+    - name: Upload ZAP report
+      id: artifact-zap
+      uses: actions/upload-artifact@v4
+      with:
+        name: zap-report
+        path: report_json.json
+
   build:
     needs: [test, sonarqube]
     if: false
@@ -146,9 +153,9 @@ jobs:
         path: ${{github.workspace}}
     - uses: actions/download-artifact@v4
       with:
-        name: zap_scan
+        name: zap-report
         path: ${{github.workspace}}
-    - name: Display structure of downloaded files
+    - name: Upload reports
       env:
        SUBMIT_USER: ${{ secrets.UPLOAD_USER }}
        SUBMIT_PASS: ${{ secrets.UPLOAD_PASSWORD }}
