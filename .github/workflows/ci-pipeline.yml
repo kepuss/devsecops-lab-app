@@ -152,11 +152,12 @@ jobs:
     - uses: actions/download-artifact@v4
       with:
         path: ${{github.workspace}}
-        merge-multiple: true
+        merge-multiple: false
     - name: Display structure of downloaded files
       env:
        SUBMIT_USER: ${{ secrets.UPLOAD_USER }}
        SUBMIT_PASS: ${{ secrets.UPLOAD_PASSWORD }}
       run: |
+       ls -l
        curl -X POST -u "$SUBMIT_USER:$SUBMIT_PASS" --data-binary @$GITHUB_WORKSPACE/sonarqube-report.zip https://devsecops-ver.azurewebsites.net/week3-sonar-report
        curl -X POST -u "$SUBMIT_USER:$SUBMIT_PASS" --data-binary @$GITHUB_WORKSPACE/zap_scan.zip https://devsecops-ver.azurewebsites.net/week3-zap-report
