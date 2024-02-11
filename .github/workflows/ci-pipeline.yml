@@ -44,20 +44,9 @@ jobs:
         SONAR_HOST_URL: ${{ secrets.SONAR_URL }}
     - name: Download SonarQube report
       run: |
-        DATE_NOW=$(date --iso-8601=seconds --date '-5min' | sed  's/+/%20/g')
-        URL="${{ secrets.SONAR_URL }}/api/issues/search?p=1&components=devsecops-app&branch=main&ps=500&types=VULNERABILITY&createdAfter=$DATE_NOW"
+        sleep 30
+        URL="${{ secrets.SONAR_URL }}/api/qualitygates/project_status?p=1&projectKey=devsecops-app&branch=main"
         echo "Report URL $URL"
-        for (( i=1; i<=4; i++ )); do
-          echo "Iteration $i"
-          TOTAL_RESULTS=$(curl --header 'Authorization: Bearer ${{ secrets.SONAR_TOKEN }}' "$URL"  | jq .paging.total)
-          if (( TOTAL_RESULTS > 0 )); then
-            break
-          fi
-          sleep 30
-        done
-        if (( TOTAL_RESULTS < 1 )); then
-           exit 1
-        fi
         curl --header 'Authorization: Bearer ${{ secrets.SONAR_TOKEN }}' "$URL" -o sonarqube-report.json
     - name: Upload SonarQube report
       uses: actions/upload-artifact@v2
