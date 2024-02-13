@@ -29,7 +29,7 @@ jobs:
 
   sonarqube:
     needs: test
-    if: false
+    if: true
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
@@ -56,7 +56,7 @@ jobs:
 
   dast:
     needs: test
-    if: false
+    if: true
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -137,9 +137,42 @@ jobs:
             name: image-report
             path: ${{ steps.image-scan.outputs.json }}
 
+
+    security_gate:
+        needs: [sonarqube, dast, image-scan]
+        if: true
+        runs-on: ubuntu-latest
+        steps:
+        - name: Download sonarqube-report
+          uses: actions/download-artifact@v4
+          with:
+            name: sonarqube-report
+            path: ${{github.workspace}}
+        - name: Download zap-report
+          uses: actions/download-artifact@v4
+          with:
+            name: zap-report
+            path: ${{github.workspace}}
+        - name: Download image-report
+          uses: actions/download-artifact@v4
+          with:
+            name: image-report
+            path: ${{github.workspace}}
+        - name: Read reports
+          run: |
+            IMAGE_RESULT_HIGH=$(cat results.json | jq '.matches[] | select(.vulnerability.severity=="High") | .vulnerability.id' | wc -l)
+            SONAR_RESULT=$(cat sonarqube-report.json | jq -r '.projectStatus.status')
+            ZAP_RESULT_HIGH=$(cat report_json.json | jq -r '.site[].alerts[] | select(.riskdesc | startswith("High")) | .name' | wc -l)
+            if [ $IMAGE_RESULT_HIGH -gt 0 ] || [ $SONAR_RESULT != "OK" ] || [ $ZAP_RESULT_HIGH -gt 0 ]; then
+              echo "Security gate failed"
+              exit 1
+            else
+              echo "Security gate passed"
+            fi
+
   build:
-    needs: [test, sonarqube, dast]
-    if: false
+    needs: [security_gate]
+    if: true
     runs-on: ubuntu-latest
     steps:
       -
@@ -164,8 +197,8 @@ jobs:
 
 
   submit_reports:
-   needs: [test, sonarqube, dast, build]
-   if: false
+   needs: [ sonarqube, dast,image-scan]
+   if: true
    runs-on: ubuntu-latest
    steps:
     - uses: actions/download-artifact@v4
