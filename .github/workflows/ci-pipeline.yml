@@ -194,7 +194,7 @@ jobs:
     # needs: [security_gate]
     if: true
     permissions:
-      id-token: true
+      id-token: write
     runs-on: ubuntu-latest
     steps:
       -
