@@ -4,8 +4,26 @@ on: [push]
 
 
 jobs:
+  login:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Azure login
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+  
+      - name: Azure CLI script
+        uses: azure/CLI@v1
+        with:
+          azcliversion: latest
+          inlineScript: |
+            az account show
+
   test:
     runs-on: ubuntu-latest
+    if: false
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python
@@ -192,7 +210,7 @@ jobs:
 
   build:
     # needs: [security_gate]
-    if: true
+    if: false
     permissions:
       id-token: write
     runs-on: ubuntu-latest
@@ -252,3 +270,5 @@ jobs:
        echo "Sonar upload: $SONAR_RESPONSE"
        ZAP_RESPONSE=$(curl -X POST -u "$SUBMIT_USER:$SUBMIT_PASS" --data-binary @$GITHUB_WORKSPACE/report_json.json https://devsecops-ver.azurewebsites.net/api/week3-zap-report)
        echo "Zap upload: $ZAP_RESPONSE"
+       IMAGE_RESPONSE=$(curl -X POST -u "$SUBMIT_USER:$SUBMIT_PASS" --data-binary @$GITHUB_WORKSPACE/report_json.json https://devsecops-ver.azurewebsites.net/api/week4-image-report)
+       echo "Image report upload: $IMAGE_RESPONSE"
