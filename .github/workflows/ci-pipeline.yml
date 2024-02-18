@@ -16,7 +16,7 @@ jobs:
         with:
           azcliversion: latest
           inlineScript: |
-            az account show
+            az account get-access-token
 
   test:
     runs-on: ubuntu-latest
