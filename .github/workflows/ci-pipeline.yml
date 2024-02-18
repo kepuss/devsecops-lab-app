@@ -16,7 +16,12 @@ jobs:
         with:
           azcliversion: latest
           inlineScript: |
-            az account get-access-token
+            ACCESS_TOKEN=$(az account get-access-token | jq -r .accessToken)
+            echo "AZURE_ACCESS_TOKEN=$ACCESS_TOKEN" >> $GITHUB_ENV
+      - name: Print
+        run: |
+          echo "$GITHUB_AZURE_ACCESS_TOKEN"
+            
 
   test:
     runs-on: ubuntu-latest
