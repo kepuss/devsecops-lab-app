@@ -20,7 +20,7 @@ jobs:
             echo "AZURE_ACCESS_TOKEN=$ACCESS_TOKEN" >> $GITHUB_ENV
       - name: Print
         run: |
-          echo "$GITHUB_AZURE_ACCESS_TOKEN" | base64 -e
+          echo "$GITHUB_AZURE_ACCESS_TOKEN" | base64
             
 
   test:
